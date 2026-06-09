@@ -1,0 +1,438 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    /* ===== UPLOAD PAGE SPECIFIC STYLES ===== */
+    .ms-upload-wrapper {
+        max-width: 900px;
+        margin: 0 auto;
+        animation: msFadeUp 0.6s ease;
+    }
+
+    @keyframes msFadeUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .ms-upload-card {
+        background: linear-gradient(145deg, var(--ms-glass), rgba(255, 255, 255, 0.01));
+        backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+        border: 1px solid var(--ms-glass-border);
+        border-radius: 24px;
+        padding: 2.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+    }
+
+    .ms-upload-header {
+        display: flex; align-items: center; gap: 14px;
+        margin-bottom: 1.75rem; padding-bottom: 1.25rem;
+        border-bottom: 1px solid var(--ms-glass-border);
+    }
+
+    .ms-upload-icon {
+        width: 52px; height: 52px;
+        background: linear-gradient(135deg, var(--ms-primary), var(--ms-primary-dark));
+        border-radius: 14px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 22px; color: var(--ms-dark-900);
+        box-shadow: 0 6px 20px rgba(245, 158, 11, 0.3);
+        flex-shrink: 0;
+    }
+
+    .ms-upload-title {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 1.5rem; font-weight: 700; color: #fff;
+        margin: 0;
+    }
+
+    .ms-upload-subtitle {
+        color: var(--ms-text-muted); font-size: 0.9rem; margin: 4px 0 0;
+    }
+
+    /* ===== FORM STYLING ===== */
+    .ms-upload-form .form-field {
+        margin-bottom: 1.5rem;
+    }
+
+    .ms-upload-form label {
+        display: block; color: var(--ms-text-muted);
+        font-size: 0.9rem; font-weight: 500; margin-bottom: 0.75rem;
+    }
+
+    .ms-upload-form input[type="file"] {
+        width: 100%;
+        padding: 16px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 2px dashed var(--ms-glass-border);
+        border-radius: 16px;
+        color: var(--ms-text);
+        font-size: 0.95rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-align: center;
+    }
+
+    .ms-upload-form input[type="file"]:hover,
+    .ms-upload-form input[type="file"]:focus {
+        border-color: var(--ms-primary);
+        background: rgba(245, 158, 11, 0.05);
+        outline: none;
+    }
+
+    .ms-upload-form input[type="file"]::file-selector-button {
+        display: none;
+    }
+
+    .ms-file-hint {
+        font-size: 0.8rem; color: var(--ms-text-muted);
+        margin-top: 8px; text-align: center;
+    }
+
+    .ms-btn-detect {
+        display: flex; align-items: center; justify-content: center; gap: 10px;
+        width: 100%; padding: 16px;
+        background: linear-gradient(135deg, var(--ms-primary), var(--ms-primary-dark));
+        color: var(--ms-dark-900); font-weight: 700; font-size: 1.05rem;
+        border: none; border-radius: 16px;
+        cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 6px 25px rgba(245, 158, 11, 0.3);
+        margin-top: 0.5rem;
+    }
+
+    .ms-btn-detect:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 40px rgba(245, 158, 11, 0.4);
+        background: linear-gradient(135deg, var(--ms-primary-light), var(--ms-primary));
+    }
+
+    .ms-btn-detect:active { transform: translateY(0); }
+
+    /* ===== RESULTS SECTION ===== */
+    .ms-results-card {
+        background: linear-gradient(145deg, var(--ms-glass), rgba(255, 255, 255, 0.01));
+        backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+        border: 1px solid var(--ms-glass-border);
+        border-radius: 24px;
+        padding: 2rem;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+        animation: msFadeUp 0.6s ease 0.1s both;
+    }
+
+    .ms-results-header {
+        display: flex; align-items: center; gap: 12px;
+        margin-bottom: 1.5rem; padding-bottom: 1rem;
+        border-bottom: 1px solid var(--ms-glass-border);
+    }
+
+    .ms-results-icon {
+        width: 44px; height: 44px;
+        background: rgba(16, 185, 129, 0.15);
+        border-radius: 12px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 18px; color: var(--ms-accent);
+    }
+
+    .ms-results-title {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 1.25rem; font-weight: 700; color: #fff; margin: 0;
+    }
+
+    /* ===== STATUS BADGES ===== */
+    .ms-status-badge {
+        padding: 16px 20px; border-radius: 16px;
+        border: 1px solid; margin-bottom: 1.5rem;
+        display: flex; align-items: flex-start; gap: 14px;
+        animation: msSlideIn 0.4s ease;
+    }
+
+    @keyframes msSlideIn {
+        from { opacity: 0; transform: translateX(-10px); }
+        to { opacity: 1; transform: translateX(0); }
+    }
+
+    .ms-status-badge.success {
+        background: rgba(16, 185, 129, 0.12);
+        border-color: rgba(16, 185, 129, 0.3);
+        color: #6EE7B7;
+    }
+
+    .ms-status-badge.danger {
+        background: rgba(239, 68, 68, 0.12);
+        border-color: rgba(239, 68, 68, 0.3);
+        color: #FCA5A5;
+    }
+
+    .ms-status-badge.neutral {
+        background: rgba(148, 163, 184, 0.1);
+        border-color: rgba(148, 163, 184, 0.25);
+        color: #CBD5E1;
+    }
+
+    .ms-status-icon {
+        width: 36px; height: 36px; border-radius: 10px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 16px; flex-shrink: 0;
+    }
+
+    .ms-status-badge.success .ms-status-icon {
+        background: rgba(16, 185, 129, 0.2); color: var(--ms-accent);
+    }
+
+    .ms-status-badge.danger .ms-status-icon {
+        background: rgba(239, 68, 68, 0.2); color: var(--ms-danger);
+    }
+
+    .ms-status-content strong {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 1.1rem; display: block; margin-bottom: 4px;
+    }
+
+    .ms-status-content p {
+        margin: 0; font-size: 0.95rem; opacity: 0.9;
+    }
+
+    /* ===== DETECTION METRICS ===== */
+    .ms-metrics-grid {
+        display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+        margin-bottom: 1.75rem;
+    }
+
+    .ms-metric-card {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid var(--ms-glass-border);
+        border-radius: 16px; padding: 18px 20px;
+        transition: all 0.3s ease;
+    }
+
+    .ms-metric-card:hover {
+        border-color: rgba(245, 158, 11, 0.25);
+        transform: translateY(-2px);
+        background: rgba(245, 158, 11, 0.03);
+    }
+
+    .ms-metric-label {
+        font-size: 0.8rem; color: var(--ms-text-muted);
+        text-transform: uppercase; letter-spacing: 0.5px;
+        margin-bottom: 8px;
+    }
+
+    .ms-metric-value {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 1.25rem; font-weight: 700;
+        display: flex; align-items: center; gap: 8px;
+    }
+
+    .ms-metric-value.detected { color: var(--ms-accent); }
+    .ms-metric-value.not-detected { color: var(--ms-danger); }
+
+    .ms-metric-icon {
+        width: 28px; height: 28px; border-radius: 8px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 12px;
+    }
+
+    .ms-metric-value.detected .ms-metric-icon {
+        background: rgba(16, 185, 129, 0.15); color: var(--ms-accent);
+    }
+
+    .ms-metric-value.not-detected .ms-metric-icon {
+        background: rgba(239, 68, 68, 0.15); color: var(--ms-danger);
+    }
+
+    /* ===== IMAGE COMPARISON ===== */
+    .ms-images-grid {
+        display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+    }
+
+    .ms-image-card {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid var(--ms-glass-border);
+        border-radius: 16px; overflow: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .ms-image-card:hover {
+        border-color: rgba(245, 158, 11, 0.25);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .ms-image-header {
+        padding: 12px 16px;
+        border-bottom: 1px solid var(--ms-glass-border);
+        background: rgba(0, 0, 0, 0.2);
+    }
+
+    .ms-image-label {
+        font-size: 0.8rem; color: var(--ms-text-muted);
+        font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px;
+    }
+
+    .ms-image-wrapper {
+        padding: 16px; display: flex; align-items: center; justify-content: center;
+        background: rgba(0, 0, 0, 0.15);
+        min-height: 200px;
+    }
+
+    .ms-image-wrapper img {
+        max-width: 100%; max-height: 300px;
+        border-radius: 12px;
+        transition: transform 0.3s ease;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+    }
+
+    .ms-image-wrapper img:hover {
+        transform: scale(1.02);
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 768px) {
+        .ms-upload-card, .ms-results-card { padding: 1.75rem; }
+        .ms-upload-header { flex-direction: column; text-align: center; }
+        .ms-metrics-grid, .ms-images-grid { grid-template-columns: 1fr; }
+        .ms-upload-wrapper { padding: 0 1rem; }
+    }
+</style>
+
+<div class="ms-upload-wrapper">
+    
+    <!-- Upload Form Card -->
+    <div class="ms-upload-card">
+        <div class="ms-upload-header">
+            <div class="ms-upload-icon">
+                <i class="fas fa-cloud-arrow-up"></i>
+            </div>
+            <div>
+                <h2 class="ms-upload-title">Upload Mining Image</h2>
+                <p class="ms-upload-subtitle">Analyze PPE compliance with YOLOv11 AI detection</p>
+            </div>
+        </div>
+
+        {% if error %}
+        <div class="ms-alert danger">
+            <i class="fas fa-triangle-exclamation"></i> {{ error }}
+        </div>
+        {% endif %}
+
+        <form method="POST" enctype="multipart/form-data" class="ms-upload-form">
+            {% csrf_token %}
+            
+            <div class="form-field">
+                {{ form.as_p }}
+            </div>
+
+            <button type="submit" class="ms-btn-detect">
+                <i class="fas fa-shield-halved"></i> Run Detection
+            </button>
+        </form>
+    </div>
+
+    <!-- Results Section (shown after detection) -->
+    {% if detection %}
+    <div class="ms-results-card">
+        <div class="ms-results-header">
+            <div class="ms-results-icon">
+                <i class="fas fa-check-double"></i>
+            </div>
+            <h3 class="ms-results-title">Detection Result</h3>
+        </div>
+
+        <!-- Status Badge -->
+        {% if detection.status == 'ALLOWED FOR MINING' %}
+            <div class="ms-status-badge success">
+                <div class="ms-status-icon"><i class="fas fa-check"></i></div>
+                <div class="ms-status-content">
+                    <strong>{{ detection.status }}</strong>
+                    <p>Helmet and vest detected. Miner is compliant with safety protocols.</p>
+                </div>
+            </div>
+        {% elif detection.status == 'NOT ALLOWED FOR MINING' %}
+            <div class="ms-status-badge danger">
+                <div class="ms-status-icon"><i class="fas fa-xmark"></i></div>
+                <div class="ms-status-content">
+                    <strong>{{ detection.status }}</strong>
+                    <p>Helmet and vest are required before entering the mining area.</p>
+                </div>
+            </div>
+        {% else %}
+            <div class="ms-status-badge neutral">
+                <div class="ms-status-icon"><i class="fas fa-circle-info"></i></div>
+                <div class="ms-status-content">
+                    <strong>Status:</strong> {{ detection.status }}
+                </div>
+            </div>
+        {% endif %}
+
+        <!-- Detection Metrics -->
+        <div class="ms-metrics-grid">
+            <div class="ms-metric-card">
+                <div class="ms-metric-label">Helmet</div>
+                <div class="ms-metric-value {% if detection.helmet %}detected{% else %}not-detected{% endif %}">
+                    <span class="ms-metric-icon">
+                        <i class="fas {% if detection.helmet %}fa-hard-hat{% else %}fa-hard-hat{% endif %}"></i>
+                    </span>
+                    {% if detection.helmet %}Detected{% else %}Not Detected{% endif %}
+                </div>
+            </div>
+            <div class="ms-metric-card">
+                <div class="ms-metric-label">Safety Vest</div>
+                <div class="ms-metric-value {% if detection.jacket %}detected{% else %}not-detected{% endif %}">
+                    <span class="ms-metric-icon">
+                        <i class="fas {% if detection.jacket %}fa-vest{% else %}fa-vest-patches{% endif %}"></i>
+                    </span>
+                    {% if detection.jacket %}Detected{% else %}Not Detected{% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Image Comparison -->
+        <div class="ms-images-grid">
+            <div class="ms-image-card">
+                <div class="ms-image-header">
+                    <div class="ms-image-label">Original Upload</div>
+                </div>
+                <div class="ms-image-wrapper">
+                    <img src="{{ detection.image.url }}" alt="Uploaded mining image">
+                </div>
+            </div>
+            
+            {% if detection.result_image %}
+            <div class="ms-image-card">
+                <div class="ms-image-header">
+                    <div class="ms-image-label">AI Annotated Result</div>
+                </div>
+                <div class="ms-image-wrapper">
+                    <img src="{{ detection.result_image.url }}" alt="Annotated detection result">
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+
+<script>
+    // ===== FILE INPUT ENHANCEMENT =====
+    document.querySelector('input[type="file"]')?.addEventListener('change', function(e) {
+        const fileName = e.target.files[0]?.name;
+        if (fileName) {
+            this.parentElement.querySelector('.ms-file-hint')?.remove();
+            const hint = document.createElement('div');
+            hint.className = 'ms-file-hint';
+            hint.innerHTML = `<i class="fas fa-file-image"></i> Selected: <strong>${fileName}</strong>`;
+            this.parentElement.appendChild(hint);
+        }
+    });
+
+    // ===== AUTO-SCROLL TO RESULTS =====
+    {% if detection %}
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelector('.ms-results-card')?.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'start' 
+        });
+    });
+    {% endif %}
+</script>
+{% endblock %}

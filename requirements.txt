@@ -1,0 +1,8 @@
+Django>=5.2
+ultralytics
+opencv-python-headless
+pillow
+gunicorn
+whitenoise
+dj-database-url
+psycopg2-binary

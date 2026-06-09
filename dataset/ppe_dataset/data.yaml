@@ -1,0 +1,13 @@
+train: ../train/images
+val: ../valid/images
+test: ../test/images
+
+nc: 4
+names: ['helmet', 'no_helmet', 'none', 'vest']
+
+roboflow:
+  workspace: dang-gh1km
+  project: ppe-wzdov
+  version: 1
+  license: MIT
+  url: https://universe.roboflow.com/dang-gh1km/ppe-wzdov/dataset/1

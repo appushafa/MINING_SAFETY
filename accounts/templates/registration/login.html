@@ -1,0 +1,162 @@
+{% extends 'base.html' %}
+
+{% block nav_actions %}{% endblock %}
+
+{% block content %}
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+    :root {
+        --lm-primary: #F59E0B;
+        --lm-primary-dark: #D97706;
+        --lm-primary-light: #FBBF24;
+        --lm-dark-900: #0A0A0F;
+        --lm-dark-800: #12121A;
+        --lm-glass: rgba(255, 255, 255, 0.04);
+        --lm-glass-border: rgba(255, 255, 255, 0.08);
+        --lm-text: #E5E7EB;
+        --lm-text-muted: #9CA3AF;
+    }
+
+    .lm-login-wrapper {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--lm-dark-900);
+        position: relative;
+        padding: 2rem;
+        font-family: 'Inter', sans-serif;
+        overflow: hidden;
+    }
+
+    .lm-grid-bg {
+        position: absolute; inset: 0;
+        background-image: 
+            linear-gradient(rgba(245, 158, 11, 0.03) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(245, 158, 11, 0.03) 1px, transparent 1px);
+        background-size: 60px 60px;
+        mask-image: radial-gradient(ellipse at center, black 30%, transparent 70%);
+        pointer-events: none;
+    }
+
+    .lm-glow {
+        position: absolute; top: -150px; right: -150px; width: 600px; height: 600px;
+        background: radial-gradient(circle, rgba(245, 158, 11, 0.12) 0%, transparent 60%);
+        border-radius: 50%; pointer-events: none; animation: lmPulseGlow 8s ease-in-out infinite alternate;
+    }
+
+    @keyframes lmPulseGlow {
+        0% { opacity: 0.6; transform: scale(0.95); }
+        100% { opacity: 1; transform: scale(1.05); }
+    }
+
+    .lm-card {
+        background: linear-gradient(145deg, var(--lm-glass), rgba(255, 255, 255, 0.01));
+        backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+        border: 1px solid var(--lm-glass-border);
+        border-radius: 28px;
+        padding: 3.5rem 3rem;
+        max-width: 480px; width: 100%;
+        position: relative; z-index: 2;
+        box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        animation: lmFadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes lmFadeUp {
+        from { opacity: 0; transform: translateY(24px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .lm-header { text-align: center; margin-bottom: 2rem; }
+    .lm-logo-icon {
+        width: 56px; height: 56px; background: linear-gradient(135deg, var(--lm-primary), var(--lm-primary-dark));
+        border-radius: 16px; display: inline-flex; align-items: center; justify-content: center;
+        font-size: 24px; color: var(--lm-dark-900); margin-bottom: 1.25rem;
+        box-shadow: 0 8px 24px rgba(245, 158, 11, 0.3);
+    }
+    .lm-title { font-family: 'Space Grotesk', sans-serif; font-size: 2rem; font-weight: 700; color: #fff; margin-bottom: 0.5rem; }
+    .lm-subtitle { color: var(--lm-text-muted); font-size: 0.95rem; line-height: 1.6; }
+
+    .lm-alert {
+        padding: 12px 16px; border-radius: 12px; font-size: 0.875rem; margin-bottom: 1.25rem;
+        border: 1px solid; display: flex; align-items: center; gap: 10px; animation: lmFadeUp 0.5s ease;
+    }
+    .lm-alert.info { background: rgba(59, 130, 246, 0.1); border-color: rgba(59, 130, 246, 0.2); color: #93C5FD; }
+    .lm-alert.success { background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.2); color: #6EE7B7; }
+    .lm-alert.warning { background: rgba(245, 158, 11, 0.1); border-color: rgba(245, 158, 11, 0.2); color: #FCD34D; }
+    .lm-alert.error, .lm-alert.danger { background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.2); color: #FCA5A5; }
+
+    .lm-form p { margin: 0 0 1.25rem !important; }
+    .lm-form label { display: block; color: var(--lm-text-muted); font-size: 0.85rem; font-weight: 500; margin-bottom: 0.5rem; }
+    .lm-form input[type="text"], .lm-form input[type="password"], .lm-form input[type="email"], .lm-form input {
+        width: 100%; padding: 14px 16px; background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--lm-glass-border); border-radius: 12px;
+        color: #fff; font-size: 0.95rem; transition: all 0.3s ease;
+    }
+    .lm-form input:focus { outline: none; border-color: var(--lm-primary); box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15); background: rgba(255, 255, 255, 0.08); }
+    .lm-form input::placeholder { color: rgba(255, 255, 255, 0.3); }
+
+    .lm-btn {
+        display: flex; align-items: center; justify-content: center; gap: 10px;
+        width: 100%; padding: 15px; background: linear-gradient(135deg, var(--lm-primary), var(--lm-primary-dark));
+        color: var(--lm-dark-900); font-weight: 600; font-size: 1rem; border: none;
+        border-radius: 14px; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 4px 20px rgba(245, 158, 11, 0.25); margin-top: 0.5rem;
+    }
+    .lm-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(245, 158, 11, 0.35); }
+    .lm-btn:active { transform: translateY(0); }
+
+    .lm-footer { text-align: center; margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--lm-glass-border); }
+    .lm-footer p { color: var(--lm-text-muted); font-size: 0.9rem; margin: 0; }
+    .lm-link { color: var(--lm-primary); text-decoration: none; font-weight: 600; transition: all 0.2s; }
+    .lm-link:hover { color: var(--lm-primary-light); text-decoration: underline; }
+
+    @media (max-width: 540px) { .lm-card { padding: 2.5rem 1.5rem; } .lm-title { font-size: 1.75rem; } }
+</style>
+
+<div class="lm-login-wrapper">
+    <div class="lm-grid-bg"></div>
+    <div class="lm-glow"></div>
+
+    <div class="lm-card">
+        <div class="lm-header">
+            <div class="lm-logo-icon"><i class="fas fa-hard-hat"></i></div>
+            <h1 class="lm-title">Welcome Back</h1>
+            <p class="lm-subtitle">Sign in to access your SafeMine AI dashboard</p>
+        </div>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="lm-alert {{ message.tags|default:'info' }}">
+                    <i class="fas fa-circle-info"></i> {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        {% if form.errors %}
+            <div class="lm-alert danger">
+                <i class="fas fa-triangle-exclamation"></i> Your username or password was incorrect.
+            </div>
+        {% endif %}
+
+        <form method="post" class="lm-form">
+            {% csrf_token %}
+            {% if redirect_field_value %}
+                <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}">
+            {% endif %}
+
+            {{ form.as_p }}
+
+            <button class="lm-btn" type="submit">
+                <i class="fas fa-right-to-bracket"></i> Sign in
+            </button>
+        </form>
+
+        <div class="lm-footer">
+            <p>User not found? <a href="{% url 'signup' %}{% if redirect_field_value %}?next={{ redirect_field_value|urlencode }}{% endif %}" class="lm-link">Create an account</a></p>
+        </div>
+    </div>
+</div>
+{% endblock %}

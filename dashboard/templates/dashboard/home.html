@@ -1,0 +1,391 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    /* ===== DASHBOARD SPECIFIC STYLES ===== */
+    .ms-dashboard-wrapper {
+        max-width: 1200px;
+        margin: 0 auto;
+        animation: msFadeUp 0.6s ease;
+    }
+
+    @keyframes msFadeUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ===== DASHBOARD HEADER ===== */
+    .ms-dashboard-header {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 1.5rem 2rem;
+        background: linear-gradient(145deg, var(--ms-glass), rgba(255, 255, 255, 0.01));
+        backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+        border: 1px solid var(--ms-glass-border);
+        border-radius: 24px;
+        margin-bottom: 2rem;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+    }
+
+    .ms-dashboard-user {
+        display: flex; align-items: center; gap: 16px;
+    }
+
+    .ms-user-avatar {
+        width: 52px; height: 52px;
+        background: linear-gradient(135deg, var(--ms-primary), var(--ms-primary-dark));
+        border-radius: 14px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 20px; color: var(--ms-dark-900); font-weight: 700;
+        box-shadow: 0 6px 20px rgba(245, 158, 11, 0.3);
+        flex-shrink: 0;
+    }
+
+    .ms-user-info h2 {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 1.4rem; font-weight: 700; color: #fff;
+        margin: 0 0 4px;
+    }
+
+    .ms-user-info p {
+        color: var(--ms-text-muted); font-size: 0.9rem; margin: 0;
+        display: flex; align-items: center; gap: 6px;
+    }
+
+    .ms-user-info .status-dot {
+        width: 8px; height: 8px; background: var(--ms-accent);
+        border-radius: 50%; display: inline-block;
+        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+    }
+
+    .ms-dashboard-actions {
+        display: flex; gap: 12px;
+    }
+
+    /* ===== STATS GRID ===== */
+    .ms-stats-grid {
+        display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;
+        margin-bottom: 2.5rem;
+    }
+
+    .ms-stat-card {
+        background: linear-gradient(145deg, var(--ms-glass), rgba(255, 255, 255, 0.01));
+        backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+        border: 1px solid var(--ms-glass-border);
+        border-radius: 24px;
+        padding: 1.75rem;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative; overflow: hidden;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+        animation: msFadeUp 0.6s ease both;
+    }
+
+    .ms-stat-card:nth-child(1) { animation-delay: 0.1s; }
+    .ms-stat-card:nth-child(2) { animation-delay: 0.2s; }
+    .ms-stat-card:nth-child(3) { animation-delay: 0.3s; }
+
+    .ms-stat-card::before {
+        content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+        background: linear-gradient(90deg, transparent, var(--ms-primary), transparent);
+        opacity: 0; transition: opacity 0.4s ease;
+    }
+
+    .ms-stat-card:hover {
+        transform: translateY(-6px);
+        border-color: rgba(245, 158, 11, 0.25);
+        box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
+    }
+
+    .ms-stat-card:hover::before { opacity: 1; }
+
+    .ms-stat-icon {
+        width: 56px; height: 56px; border-radius: 16px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 22px; margin-bottom: 1rem;
+    }
+
+    .ms-stat-card.total .ms-stat-icon {
+        background: rgba(245, 158, 11, 0.15); color: var(--ms-primary);
+    }
+
+    .ms-stat-card.allowed .ms-stat-icon {
+        background: rgba(16, 185, 129, 0.15); color: var(--ms-accent);
+    }
+
+    .ms-stat-card.not-allowed .ms-stat-icon {
+        background: rgba(239, 68, 68, 0.15); color: var(--ms-danger);
+    }
+
+    .ms-stat-label {
+        font-size: 0.9rem; color: var(--ms-text-muted);
+        font-weight: 500; margin-bottom: 8px;
+        text-transform: uppercase; letter-spacing: 0.5px;
+    }
+
+    .ms-stat-value {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 2.5rem; font-weight: 800; color: #fff;
+        line-height: 1; margin-bottom: 4px;
+    }
+
+    .ms-stat-trend {
+        font-size: 0.85rem; color: var(--ms-text-muted);
+        display: flex; align-items: center; gap: 4px;
+    }
+
+    .ms-stat-trend.positive { color: var(--ms-accent); }
+    .ms-stat-trend.negative { color: var(--ms-danger); }
+
+    /* ===== PROGRESS VISUALIZATION ===== */
+    .ms-compliance-card {
+        background: linear-gradient(145deg, var(--ms-glass), rgba(255, 255, 255, 0.01));
+        backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+        border: 1px solid var(--ms-glass-border);
+        border-radius: 24px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+        animation: msFadeUp 0.6s ease 0.4s both;
+    }
+
+    .ms-compliance-header {
+        display: flex; align-items: center; justify-content: space-between;
+        margin-bottom: 1.5rem;
+    }
+
+    .ms-compliance-title {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 1.2rem; font-weight: 700; color: #fff; margin: 0;
+    }
+
+    .ms-compliance-percentage {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 1.5rem; font-weight: 800;
+        background: linear-gradient(135deg, var(--ms-primary), var(--ms-primary-light));
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+
+    .ms-progress-bar {
+        height: 12px; background: rgba(255, 255, 255, 0.08);
+        border-radius: 10px; overflow: hidden; margin-bottom: 1rem;
+        position: relative;
+    }
+
+    .ms-progress-fill {
+        height: 100%; border-radius: 10px;
+        background: linear-gradient(90deg, var(--ms-primary), var(--ms-primary-light));
+        transition: width 1s ease-out;
+        position: relative;
+    }
+
+    .ms-progress-fill::after {
+        content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+        animation: msShimmer 2s infinite;
+    }
+
+    @keyframes msShimmer {
+        0% { transform: translateX(-100%); }
+        100% { transform: translateX(100%); }
+    }
+
+    .ms-compliance-legend {
+        display: flex; justify-content: space-between; font-size: 0.85rem;
+        color: var(--ms-text-muted);
+    }
+
+    .ms-legend-item { display: flex; align-items: center; gap: 6px; }
+    .ms-legend-dot { width: 10px; height: 10px; border-radius: 3px; }
+    .ms-legend-dot.allowed { background: var(--ms-accent); }
+    .ms-legend-dot.not-allowed { background: var(--ms-danger); }
+
+    /* ===== CTA BUTTON ===== */
+    .ms-cta-btn {
+        display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+        padding: 16px 32px; border-radius: 16px;
+        background: linear-gradient(135deg, var(--ms-primary), var(--ms-primary-dark));
+        color: var(--ms-dark-900); font-weight: 700; font-size: 1rem;
+        text-decoration: none; border: none; cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 6px 25px rgba(245, 158, 11, 0.3);
+        animation: msFadeUp 0.6s ease 0.5s both;
+    }
+
+    .ms-cta-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 40px rgba(245, 158, 11, 0.4);
+        background: linear-gradient(135deg, var(--ms-primary-light), var(--ms-primary));
+    }
+
+    .ms-cta-btn:active { transform: translateY(0); }
+
+    /* ===== QUICK STATS ROW ===== */
+    .ms-quick-stats {
+        display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
+        margin-bottom: 2rem;
+    }
+
+    .ms-quick-stat {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid var(--ms-glass-border);
+        border-radius: 16px; padding: 1.25rem 1.5rem;
+        text-align: center; transition: all 0.3s ease;
+    }
+
+    .ms-quick-stat:hover {
+        border-color: rgba(245, 158, 11, 0.25);
+        background: rgba(245, 158, 11, 0.03);
+    }
+
+    .ms-quick-stat-value {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 1.75rem; font-weight: 700; color: #fff;
+        margin-bottom: 4px;
+    }
+
+    .ms-quick-stat-label {
+        font-size: 0.8rem; color: var(--ms-text-muted);
+        text-transform: uppercase; letter-spacing: 0.5px;
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 992px) {
+        .ms-stats-grid, .ms-quick-stats { grid-template-columns: repeat(2, 1fr); }
+        .ms-dashboard-header { flex-direction: column; text-align: center; gap: 1rem; }
+        .ms-dashboard-actions { width: 100%; justify-content: center; }
+    }
+
+    @media (max-width: 576px) {
+        .ms-stats-grid, .ms-quick-stats { grid-template-columns: 1fr; }
+        .ms-stat-value { font-size: 2rem; }
+        .ms-dashboard-header, .ms-compliance-card { padding: 1.25rem; }
+    }
+</style>
+
+<div class="ms-dashboard-wrapper">
+    
+    <!-- Dashboard Header -->
+    <div class="ms-dashboard-header">
+        <div class="ms-dashboard-user">
+            <div class="ms-user-avatar">
+                {{ request.user.username|first|upper }}
+            </div>
+            <div class="ms-user-info">
+                <h2>My Dashboard</h2>
+                <p>
+                    <span class="status-dot"></span>
+                    Logged in as <strong>{{ request.user.username }}</strong>
+                </p>
+            </div>
+        </div>
+        <div class="ms-dashboard-actions">
+            <a href="/detection/" class="ms-cta-btn">
+                <i class="fas fa-plus"></i> New Detection
+            </a>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="ms-stats-grid">
+        <!-- Total Detections -->
+        <div class="ms-stat-card total">
+            <div class="ms-stat-icon">
+                <i class="fas fa-chart-pie"></i>
+            </div>
+            <div class="ms-stat-label">Total Detections</div>
+            <div class="ms-stat-value">{{ total }}</div>
+            <div class="ms-stat-trend positive">
+                <i class="fas fa-arrow-trend-up"></i> All time
+            </div>
+        </div>
+
+        <!-- Allowed for Mining -->
+        <div class="ms-stat-card allowed">
+            <div class="ms-stat-icon">
+                <i class="fas fa-shield-check"></i>
+            </div>
+            <div class="ms-stat-label">Allowed for Mining</div>
+            <div class="ms-stat-value">{{ allowed }}</div>
+            <div class="ms-stat-trend positive">
+                <i class="fas fa-check-circle"></i> Compliant
+            </div>
+        </div>
+
+        <!-- Not Allowed -->
+        <div class="ms-stat-card not-allowed">
+            <div class="ms-stat-icon">
+                <i class="fas fa-triangle-exclamation"></i>
+            </div>
+            <div class="ms-stat-label">Not Allowed</div>
+            <div class="ms-stat-value">{{ not_allowed }}</div>
+            <div class="ms-stat-trend negative">
+                <i class="fas fa-circle-exclamation"></i> Action Required
+            </div>
+        </div>
+    </div>
+
+    <!-- Compliance Progress -->
+    <div class="ms-compliance-card">
+        <div class="ms-compliance-header">
+            <h3 class="ms-compliance-title">Safety Compliance Rate</h3>
+            <span class="ms-compliance-percentage">
+                {% if total > 0 %}
+                    {% widthratio allowed total 100 %}%
+                {% else %}
+                    0%
+                {% endif %}
+            </span>
+        </div>
+        <div class="ms-progress-bar">
+            <div class="ms-progress-fill" style="width: {% if total > 0 %}{% widthratio allowed total 100 %}%{% else %}0%{% endif %}"></div>
+        </div>
+        <div class="ms-compliance-legend">
+            <div class="ms-legend-item">
+                <span class="ms-legend-dot allowed"></span>
+                <span>Allowed: {{ allowed }}</span>
+            </div>
+            <div class="ms-legend-item">
+                <span class="ms-legend-dot not-allowed"></span>
+                <span>Not Allowed: {{ not_allowed }}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Stats Summary -->
+    <div class="ms-quick-stats">
+        <div class="ms-quick-stat">
+            <div class="ms-quick-stat-value">{{ total }}</div>
+            <div class="ms-quick-stat-label">Total Scans</div>
+        </div>
+        <div class="ms-quick-stat">
+            <div class="ms-quick-stat-value">
+                {% if total > 0 %}{% widthratio allowed total 100 %}{% else %}0{% endif %}%
+            </div>
+            <div class="ms-quick-stat-label">Compliance Rate</div>
+        </div>
+        <div class="ms-quick-stat">
+            <div class="ms-quick-stat-value">{{ not_allowed }}</div>
+            <div class="ms-quick-stat-label">Violations</div>
+        </div>
+    </div>
+
+    <!-- Primary CTA -->
+    <a href="/detection/" class="ms-cta-btn">
+        <i class="fas fa-cloud-arrow-up"></i> Upload Detection
+    </a>
+
+</div>
+
+<script>
+    // ===== ANIMATE PROGRESS BAR ON LOAD =====
+    document.addEventListener('DOMContentLoaded', () => {
+        const progressBar = document.querySelector('.ms-progress-fill');
+        if (progressBar) {
+            const targetWidth = progressBar.style.width;
+            progressBar.style.width = '0%';
+            setTimeout(() => {
+                progressBar.style.width = targetWidth;
+            }, 300);
+        }
+    });
+</script>
+{% endblock %}

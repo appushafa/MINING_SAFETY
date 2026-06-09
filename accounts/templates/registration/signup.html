@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block nav_actions %}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+                <h2 class="h4 mb-3">Sign Up</h2>
+
+                <form method="post">
+                    {% csrf_token %}
+
+                    {% if next %}
+                        <input type="hidden" name="next" value="{{ next }}">
+                    {% endif %}
+
+                    {{ form.as_p }}
+
+                    <button class="btn btn-dark w-100" type="submit">
+                        Create Account
+                    </button>
+                </form>
+
+                <p class="text-center mt-3 mb-0">
+                    Already have an account?
+                    <a href="{% url 'login' %}{% if next %}?next={{ next|urlencode }}{% endif %}">
+                        Login
+                    </a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
