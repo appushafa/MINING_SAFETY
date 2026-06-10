@@ -2,7 +2,6 @@ from pathlib import Path
 
 import cv2
 from django.conf import settings
-from ultralytics import YOLO
 
 MODEL_DIR = Path(__file__).resolve().parent
 PPE_MODEL_PATH = MODEL_DIR / 'ppe_model.pt'
@@ -25,6 +24,7 @@ def _load_model(model_path):
     if not model_path.exists():
         return None
 
+    from ultralytics import YOLO  # lazy import — avoids loading torch/matplotlib at startup
     return YOLO(str(model_path))
 
 
