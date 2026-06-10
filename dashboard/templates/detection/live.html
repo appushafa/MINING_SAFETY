@@ -312,7 +312,7 @@
     // Start Webcam
     async function startWebcam() {
         try {
-            const stream = await navigator.mediaDevices.getUserMedia({ video: { width: 1280, height: 720 } });
+            const stream = await navigator.mediaDevices.getUserMedia({ video: { width: 640, height: 480 } });
             video.srcObject = stream;
             currentStream = stream;
         } catch (err) {
@@ -327,12 +327,12 @@
     btnCapture.addEventListener('click', () => {
         if (!video.videoWidth) return; // Video not ready
         
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
+        canvas.width = 640;
+        canvas.height = 480;
         const ctx = canvas.getContext('2d');
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
         
-        base64Image = canvas.toDataURL('image/jpeg');
+        base64Image = canvas.toDataURL('image/jpeg', 0.6);
         capturedImage.src = base64Image;
         
         video.style.display = 'none';

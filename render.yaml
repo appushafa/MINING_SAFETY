@@ -3,7 +3,7 @@ services:
     name: mining-safety-project
     runtime: python
     buildCommand: "./build.sh"
-    startCommand: "python manage.py migrate && gunicorn mining_safety_project.wsgi:application"
+    startCommand: "python manage.py migrate && gunicorn --timeout 120 mining_safety_project.wsgi:application"
     envVars:
       - key: PYTHON_VERSION
         value: 3.10.0
